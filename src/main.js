@@ -110,3 +110,4 @@ function spanElementRem() {                           // Видаляємо ло
   const loaderF = document.querySelector('.loader');
   loaderF.remove();
 }
+
