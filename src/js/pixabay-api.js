@@ -14,13 +14,9 @@ buttonForInput.addEventListener('click', event => {
   loaderF();
   event.preventDefault();
   userList.innerHTML = '';
-  setTimeout(() => {
-    wordOfUser = inputOfWords.value.trim();
-    checkInputValidity();
-  }, 1000);
-  setTimeout(() => {
-    inputOfWords.value = '';
-  }, 1050);
+  wordOfUser = inputOfWords.value.trim();
+  checkInputValidity();
+  inputOfWords.value = '';
 });
 
 export async function checkInputValidity() {

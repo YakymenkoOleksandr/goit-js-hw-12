@@ -27,11 +27,12 @@ buttonForInput.addEventListener('click', event => {
   loaderF();
   event.preventDefault();
   userList.innerHTML = '';
-  setTimeout(() => {
-    wordOfUser = inputOfWords.value.trim();
-    checkInputValidity();
-    inputOfWords.value = '';
-  }, 1000);
+  wordOfUser = inputOfWords.value.trim();
+  checkInputValidity();
+  inputOfWords.value = '';
+  if (wordOfUser !== inputOfWords.value.trim()) {
+    loadPage = 1;
+  }
 });
 
 async function checkInputValidity() {
@@ -107,11 +108,13 @@ function renderImg(images) {
     });
   } else {
     addButtonLoad();
+    scrollByTwoImages();
+    loadPage++;
   }
 }
 
 async function fetchImages() {
-    // Запит на сервер для отримання даних про фотографії pixabay-api.js
+  // Запит на сервер для отримання даних про фотографії pixabay-api.js
   const myApiKey = '42977219-0f6c9f9217f976d8651793c3a';
   const params = {
     key: myApiKey,
@@ -164,18 +167,11 @@ function addButtonLoad() {
 
   buttonLoad.addEventListener('click', event => {
     loaderF();
-    areaForLoader.style.display = 'none';
     event.preventDefault();
     buttonLoad.textContent = 'Loading...';
-    setTimeout(async () => {
-      wordOfUser;
-      await checkInputValidity();
-      setTimeout(() => {
-          scrollByTwoImages();
-          buttonLoad.remove();
-      }, 1);
-    }, 1000);
-    loadPage++;
+    wordOfUser;
+    checkInputValidity();
+    buttonLoad.remove();
   });
 }
 

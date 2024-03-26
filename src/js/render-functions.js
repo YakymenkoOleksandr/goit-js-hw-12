@@ -1,14 +1,14 @@
-import iziToast from 'izitoast';                                  // Бібліотека для повідомлень
+import iziToast from 'izitoast'; // Бібліотека для повідомлень
 import 'izitoast/dist/css/iziToast.min.css';
 
-import SimpleLightbox from 'simplelightbox';                      // Бібліотека для галереї
+import SimpleLightbox from 'simplelightbox'; // Бібліотека для галереї
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+export const userList = document.querySelector('.userList'); // Галерея
+export const areaForLoader = document.querySelector('.areaForLoader'); // Лоадер
 
-export const userList = document.querySelector('.userList');             // Галерея
-export const areaForLoader = document.querySelector('.areaForLoader');   // Лоадер
-
-export const lightbox = new SimpleLightbox('.gallery a', {   // Великі картинки 
+export const lightbox = new SimpleLightbox('.gallery a', {
+  // Великі картинки
   captionDelay: 250,
   captionsData: 'alt',
 });
@@ -17,7 +17,7 @@ export let imagesLength = '';
 export let loadPage = 1;
 
 export function renderImg(images) {
-  // Рендар фото в браузері 
+  // Рендар фото в браузері
   imagesLength = images.length;
 
   const markupImg = images
@@ -69,14 +69,14 @@ export function renderImg(images) {
 }
 
 export function loaderF() {
-  // Створюємо лоадер 
+  // Створюємо лоадер
   const spanElement = document.createElement('span');
   areaForLoader.appendChild(spanElement);
   spanElement.classList.add('loader');
 }
 
 export function spanElementRem() {
-  // Видаляємо лоадер 
+  // Видаляємо лоадер
   const loaderF = document.querySelector('.loader');
   loaderF.remove();
 }
@@ -91,17 +91,11 @@ export function addButtonLoad() {
 
   buttonLoad.addEventListener('click', event => {
     loaderF();
-    areaForLoader.style.display = 'none';
     event.preventDefault();
     buttonLoad.textContent = 'Loading...';
-    setTimeout(async () => {
-      wordOfUser;
-      await checkInputValidity();
-      setTimeout(() => {
-        scrollByTwoImages();
-      }, 1000);
-      buttonLoad.remove();
-    }, 1050);
+    wordOfUser;
+    checkInputValidity();
+    buttonLoad.remove();
     loadPage++;
   });
 }
@@ -118,4 +112,4 @@ export function scrollByTwoImages() {
   }
 }
 
-import { amountOfHits, wordOfUser, checkInputValidity } from "./pixabay-api.js";
+import { amountOfHits, wordOfUser, checkInputValidity } from './pixabay-api.js';
