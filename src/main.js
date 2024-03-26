@@ -1,34 +1,42 @@
-import iziToast from 'izitoast';                                  // Бібліотека для повідомлень
+import iziToast from 'izitoast'; // Бібліотека для повідомлень
 import 'izitoast/dist/css/iziToast.min.css';
 
-import SimpleLightbox from 'simplelightbox';                      // Бібліотека для галереї
+import SimpleLightbox from 'simplelightbox'; // Бібліотека для галереї
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const inputOfWords = document.querySelector('.inputOfWords');     // Інпут
-const buttonForInput = document.querySelector('.buttonForInput'); // Кнопка
-const userList = document.querySelector('.userList');             // Галерея
-const areaForLoader = document.querySelector('.areaForLoader');   // Лоадер
+import axios from 'axios'; // Бібліотека для запитів
+
+const inputOfWords = document.querySelector('.inputOfWords'); // Інпут
+const buttonForInput = document.querySelector('.buttonForInput'); // Кнопка пошуку
+const userList = document.querySelector('.userList'); // Галерея
+const areaForLoader = document.querySelector('.areaForLoader'); // Лоадер
 
 let wordOfUser = '';
 let imagesLength = '';
+let loadPage = 1;
+let amountOfHits = 0;
 
-const lightbox = new SimpleLightbox('.gallery a', {   // Великі картинки 
+const lightbox = new SimpleLightbox('.gallery a', {
+  // Великі картинки
   captionDelay: 250,
   captionsData: 'alt',
 });
 
-buttonForInput.addEventListener('click', event => {   // Надсилання запиту на сервер
+buttonForInput.addEventListener('click', event => {
+  // Надсилання запиту на сервер  pixabay-api.js
   loaderF();
   event.preventDefault();
   userList.innerHTML = '';
   setTimeout(() => {
     wordOfUser = inputOfWords.value.trim();
     checkInputValidity();
-  }, 2000);
+    inputOfWords.value = '';
+  }, 1000);
 });
 
-function checkInputValidity() {                   // Перевірка валідності запиту
-  fetchImages()
+async function checkInputValidity() {
+  // Перевірка валідності запиту pixabay-api.js
+  return fetchImages()
     .then(images => {
       if (wordOfUser === '') {
         iziToast.show({
@@ -50,10 +58,11 @@ function checkInputValidity() {                   // Перевірка валі
     .finally(() => spanElementRem());
 }
 
-function renderImg(images) {                        // Рендар фото в браузері
+function renderImg(images) {
+  // Рендар фото в браузері render-functions.js
   imagesLength = images.length;
 
-  const markupImg = images                          
+  const markupImg = images
     .map(image => {
       return `<div class="blockForAllElements">
           <li>
@@ -83,31 +92,101 @@ function renderImg(images) {                        // Рендар фото в 
     })
     .join('');
   userList.insertAdjacentHTML('beforeend', markupImg);
-
   lightbox.refresh();
+  if (amountOfHits < loadPage * 15) {
+    iziToast.show({
+      color: 'red',
+      message: `We're sorry, but you've reached the end of search results.`,
+      position: 'topCenter',
+    });
+  } else if (amountOfHits < 15) {
+    iziToast.show({
+      color: 'red',
+      message: `We're sorry, but you've reached the end of search results.`,
+      position: 'topCenter',
+    });
+  } else {
+    addButtonLoad();
+  }
 }
 
-function fetchImages() {                            // Запит на сервер для отримання фото
-  return fetch(
-    `https://pixabay.com/api/?key=42977219-0f6c9f9217f976d8651793c3a&q=${wordOfUser}&image_type=photo&per_page=15&orientation=horizontal&safesearch=true`
-  )
+async function fetchImages() {
+    // Запит на сервер для отримання даних про фотографії pixabay-api.js
+  const myApiKey = '42977219-0f6c9f9217f976d8651793c3a';
+  const params = {
+    key: myApiKey,
+    q: wordOfUser,
+    image_type: 'photo',
+    per_page: 15,
+    orientation: 'horizontal',
+    safesearch: true,
+    page: loadPage,
+  };
+
+  const data = await axios
+    .get('https://pixabay.com/api/', { params })
     .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
+      if (!response.data.hits) {
+        throw new Error('No images found');
       }
-      return response.json();
+      const totalHits = response.data.totalHits;
+      amountOfHits = totalHits;
+      return response.data.hits;
     })
-    .then(data => data.hits);
+    .catch(error => {
+      console.error('Error fetching images:', error);
+      throw error;
+    });
+
+  return data;
 }
 
-function loaderF() {                                  // Створюємо лоадер
+function loaderF() {
+  // Створюємо лоадер render-functions.js
   const spanElement = document.createElement('span');
   areaForLoader.appendChild(spanElement);
   spanElement.classList.add('loader');
 }
 
-function spanElementRem() {                           // Видаляємо лоадер
+function spanElementRem() {
+  // Видаляємо лоадер render-functions.js
   const loaderF = document.querySelector('.loader');
   loaderF.remove();
 }
 
+function addButtonLoad() {
+  // Кнопка лоад море
+
+  const buttonLoad = document.createElement('button');
+  userList.appendChild(buttonLoad);
+  buttonLoad.classList.add('buttonForLoad');
+  buttonLoad.textContent = 'Load more';
+
+  buttonLoad.addEventListener('click', event => {
+    loaderF();
+    areaForLoader.style.display = 'none';
+    event.preventDefault();
+    buttonLoad.textContent = 'Loading...';
+    setTimeout(async () => {
+      wordOfUser;
+      await checkInputValidity();
+      setTimeout(() => {
+          scrollByTwoImages();
+          buttonLoad.remove();
+      }, 1);
+    }, 1000);
+    loadPage++;
+  });
+}
+
+function scrollByTwoImages() {
+  // Прокрутка на 2 картинки вниз
+  const blockForAllElements = document.querySelectorAll('.blockForAllElements');
+  if (blockForAllElements.length > 0) {
+    const blockHeight = blockForAllElements[0].offsetHeight;
+    window.scrollBy({
+      top: blockHeight * 2,
+      behavior: 'smooth',
+    });
+  }
+}

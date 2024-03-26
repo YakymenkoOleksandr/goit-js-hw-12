@@ -1,22 +1,31 @@
-const inputOfWords = document.querySelector('.inputOfWords');     // Інпут
+import iziToast from 'izitoast'; // Бібліотека для повідомлень
+import 'izitoast/dist/css/iziToast.min.css';
+
+import axios from 'axios'; // Бібліотека для запитів
+
+const inputOfWords = document.querySelector('.inputOfWords'); // Інпут
 const buttonForInput = document.querySelector('.buttonForInput'); // Кнопка
 
+export let wordOfUser = '';
+export let amountOfHits = 0;
 
-let wordOfUser = '';
-
-
-buttonForInput.addEventListener('click', event => {   // Надсилання запиту на сервер
+buttonForInput.addEventListener('click', event => {
+  // Надсилання запиту на сервер
   loaderF();
   event.preventDefault();
   userList.innerHTML = '';
   setTimeout(() => {
     wordOfUser = inputOfWords.value.trim();
     checkInputValidity();
-  }, 2000);
+  }, 1000);
+  setTimeout(() => {
+    inputOfWords.value = '';
+  }, 1050);
 });
 
-function checkInputValidity() {                   // Перевірка валідності запиту
-  fetchImages()
+export async function checkInputValidity() {
+  // Перевірка валідності запиту
+  return fetchImages()
     .then(images => {
       if (wordOfUser === '') {
         iziToast.show({
@@ -38,17 +47,41 @@ function checkInputValidity() {                   // Перевірка валі
     .finally(() => spanElementRem());
 }
 
-function fetchImages() {                            // Запит на сервер для отримання фото
-  return fetch(
-    `https://pixabay.com/api/?key=42977219-0f6c9f9217f976d8651793c3a&q=${wordOfUser}&image_type=photo&per_page=15&orientation=horizontal&safesearch=true`
-  )
+async function fetchImages() {
+  // Запит на сервер для отримання даних про фотографії
+  const myApiKey = '42977219-0f6c9f9217f976d8651793c3a';
+  const params = {
+    key: myApiKey,
+    q: wordOfUser,
+    image_type: 'photo',
+    per_page: 15,
+    orientation: 'horizontal',
+    safesearch: true,
+    page: loadPage,
+  };
+
+  const data = await axios
+    .get('https://pixabay.com/api/', { params })
     .then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
+      if (!response.data.hits) {
+        throw new Error('No images found');
       }
-      return response.json();
+      const totalHits = response.data.totalHits;
+      amountOfHits = totalHits;
+      return response.data.hits;
     })
-    .then(data => data.hits);
+    .catch(error => {
+      console.error('Error fetching images:', error);
+      throw error;
+    });
+
+  return data;
 }
 
-import { userList, renderImg, loaderF, spanElementRem,} from './render-functions.js';
+import {
+  userList,
+  renderImg,
+  loaderF,
+  spanElementRem,
+  loadPage,
+} from './render-functions.js';
