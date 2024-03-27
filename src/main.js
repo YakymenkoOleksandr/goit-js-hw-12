@@ -53,10 +53,15 @@ async function checkInputValidity() {
         });
       } else {
         renderImg(images);
+        spanElementRemG();
       }
     })
     .catch(error => console.log(error))
-    .finally(() => spanElementRem());
+    .finally(() => {
+      spanElementRem();
+
+      spanElementRemG();
+    });
 }
 
 function renderImg(images) {
@@ -109,7 +114,6 @@ function renderImg(images) {
   } else {
     addButtonLoad();
     scrollByTwoImages();
-    spanElementRemG();
   }
 }
 
@@ -163,12 +167,16 @@ function loaderG() {
 function spanElementRem() {
   // Видаляємо лоадер render-functions.js
   const loaderF = document.querySelector('.loader');
-  loaderF.remove();
+  if (loaderF !== null) {
+    loaderF.remove();
+  }
 }
 
 function spanElementRemG() {
   const loaderG = document.querySelector('.loaderG');
-  loaderG.remove();
+  if (loaderG !== null) {
+    loaderG.remove();
+  }
 }
 
 function addButtonLoad() {
