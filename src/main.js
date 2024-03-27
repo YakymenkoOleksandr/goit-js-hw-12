@@ -27,12 +27,12 @@ buttonForInput.addEventListener('click', event => {
   loaderF();
   event.preventDefault();
   userList.innerHTML = '';
-  wordOfUser = inputOfWords.value.trim();
-  checkInputValidity();
-  inputOfWords.value = '';
   if (wordOfUser !== inputOfWords.value.trim()) {
     loadPage = 1;
   }
+  wordOfUser = inputOfWords.value.trim();
+  checkInputValidity();
+  inputOfWords.value = '';
 });
 
 async function checkInputValidity() {
@@ -109,12 +109,13 @@ function renderImg(images) {
   } else {
     addButtonLoad();
     scrollByTwoImages();
-    loadPage++;
+    spanElementRemG();
   }
 }
 
 async function fetchImages() {
   // Запит на сервер для отримання даних про фотографії pixabay-api.js
+
   const myApiKey = '42977219-0f6c9f9217f976d8651793c3a';
   const params = {
     key: myApiKey,
@@ -125,7 +126,6 @@ async function fetchImages() {
     safesearch: true,
     page: loadPage,
   };
-
   const data = await axios
     .get('https://pixabay.com/api/', { params })
     .then(response => {
@@ -134,6 +134,8 @@ async function fetchImages() {
       }
       const totalHits = response.data.totalHits;
       amountOfHits = totalHits;
+      params.page = loadPage;
+      loadPage++;
       return response.data.hits;
     })
     .catch(error => {
@@ -151,10 +153,22 @@ function loaderF() {
   spanElement.classList.add('loader');
 }
 
+function loaderG() {
+  // Створюємо лоадер render-functions.js
+  const spanElement = document.createElement('span');
+  areaForLoader.appendChild(spanElement);
+  spanElement.classList.add('loaderG');
+}
+
 function spanElementRem() {
   // Видаляємо лоадер render-functions.js
   const loaderF = document.querySelector('.loader');
   loaderF.remove();
+}
+
+function spanElementRemG() {
+  const loaderG = document.querySelector('.loaderG');
+  loaderG.remove();
 }
 
 function addButtonLoad() {
@@ -166,12 +180,12 @@ function addButtonLoad() {
   buttonLoad.textContent = 'Load more';
 
   buttonLoad.addEventListener('click', event => {
-    loaderF();
     event.preventDefault();
     buttonLoad.textContent = 'Loading...';
     wordOfUser;
     checkInputValidity();
     buttonLoad.remove();
+    loaderG();
   });
 }
 
